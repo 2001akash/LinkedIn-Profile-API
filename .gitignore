@@ -2,7 +2,45 @@ node_modules/
 .env
 /.cache/
 playwright/.local-browsers
+playwright/.local-browsers/*
 dist/
 npm-debug.log
 Dockerfile
 *.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Mac
+.Spotlight-V100
+.Trashes
+
+# Playwright test artifacts
+test-results/
+playwright-report/
+

@@ -27,6 +27,21 @@ npx playwright install --with-deps
 npm start
 ```
 
+Local test
+
+You can run a one-off test scrape locally with:
+
+```bash
+# set credentials in .env
+npm run test-scrape -- https://www.linkedin.com/in/<profile>
+```
+
+Or set `TEST_PROFILE_URL` in your `.env` and run:
+
+```bash
+npm run test-scrape
+```
+
 API
 
 - POST /scrape
@@ -67,3 +82,10 @@ CI & Deployment
 - This repo includes GitHub Actions workflows in `.github/workflows/ci.yml` and `.github/workflows/deploy_render.yml`.
 - `ci.yml` builds a Docker image and pushes it to GitHub Container Registry (GHCR). Set the `GHCR_TOKEN` secret in your repository settings.
 - `deploy_render.yml` is a manual workflow that builds and pushes the image, and can optionally trigger a Render deploy when `RENDER_API_KEY` and `RENDER_SERVICE_ID` are set as secrets.
+
+- `deploy_fly.yml` deploys to Fly.io. To use it, set the `FLY_API_TOKEN` and `FLY_APP_NAME` repository secrets and `GHCR_TOKEN` for pushing images to GHCR.
+
+Hosting options
+
+- Render: Add `RENDER_API_KEY` and `RENDER_SERVICE_ID` as GitHub secrets to enable `deploy_render.yml`.
+- Fly: Add `FLY_API_TOKEN`, `FLY_APP_NAME`, and `GHCR_TOKEN` secrets to enable `deploy_fly.yml`.

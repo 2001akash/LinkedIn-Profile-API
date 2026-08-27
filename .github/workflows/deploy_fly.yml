@@ -1,0 +1,48 @@
+name: Deploy to Fly
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Build Docker image
+        run: |
+          IMAGE=ghcr.io/${{ github.repository_owner }}/linkedin-profile-api:${{ github.sha }}
+          docker build -t $IMAGE .
+
+      - name: Login to GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          echo $GHCR_TOKEN | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+      - name: Push image to GHCR
+        run: |
+          IMAGE=ghcr.io/${{ github.repository_owner }}/linkedin-profile-api:${{ github.sha }}
+          docker push $IMAGE
+
+      - name: Install flyctl
+        run: |
+          curl -L https://fly.io/install.sh | sh
+
+      - name: Deploy to Fly
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_APP_NAME: ${{ secrets.FLY_APP_NAME }}
+          IMAGE: ghcr.io/${{ github.repository_owner }}/linkedin-profile-api:${{ github.sha }}
+        run: |
+          export FLYCTL_INSTALL="$HOME/.fly"
+          export PATH="$FLYCTL_INSTALL/bin:$PATH"
+          ~/.fly/bin/flyctl auth login --access-token "$FLY_API_TOKEN"
+          ~/.fly/bin/flyctl deploy --app "$FLY_APP_NAME" --image "$IMAGE" --strategy immediate
