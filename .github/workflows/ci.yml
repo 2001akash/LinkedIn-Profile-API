@@ -1,0 +1,33 @@
+name: CI - build and publish image
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Build and publish Docker image
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          echo "Building Docker image"
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/linkedin-profile-api:${{ github.sha }}
+          docker build -t $IMAGE_NAME .
+          echo $GHCR_TOKEN | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+          docker push $IMAGE_NAME

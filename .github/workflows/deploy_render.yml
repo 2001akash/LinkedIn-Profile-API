@@ -1,0 +1,36 @@
+name: Deploy to Render (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/linkedin-profile-api:${{ github.sha }}
+          docker build -t $IMAGE_NAME .
+
+      - name: Push to GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/linkedin-profile-api:${{ github.sha }}
+          echo $GHCR_TOKEN | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+          docker push $IMAGE_NAME
+
+      - name: Trigger Render deploy (optional)
+        if: ${{ secrets.RENDER_API_KEY != '' && secrets.RENDER_SERVICE_ID != '' }}
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          echo "Triggering Render deploy via API"
+          curl -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache":true}' \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys"
