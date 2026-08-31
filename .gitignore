@@ -5,7 +5,6 @@ playwright/.local-browsers
 playwright/.local-browsers/*
 dist/
 npm-debug.log
-Dockerfile
 *.log
 
 # OS files
