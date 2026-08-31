@@ -25,12 +25,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Build (and push when token provided)
+      - name: Build image (load locally)
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: ${{ secrets.GHCR_TOKEN != '' }}
+          push: false
+          load: true
           tags: ghcr.io/${{ github.repository_owner }}/linkedin-profile-api:${{ github.sha }}
+
+      - name: Push to GHCR (optional)
+        run: |
+          if [ -n "$GHCR_TOKEN" ]; then
+            echo "Pushing image to GHCR"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+            docker push ghcr.io/${{ github.repository_owner }}/linkedin-profile-api:${{ github.sha }}
+          else
+            echo "GHCR_TOKEN not set; skipping push"
+          fi
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Trigger Render deploy (optional)
         env:
