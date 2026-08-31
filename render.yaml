@@ -1,0 +1,11 @@
+# Render service manifest. Update `repo` to your GitHub repository URL before applying.
+services:
+  - type: web
+    name: linkedin-profile-api
+    env: docker
+    repo: https://github.com/<your-username>/linkedin-profile-api
+    branch: main
+    dockerfilePath: Dockerfile
+    plan: free
+    buildCommand: ''
+    startCommand: ''

@@ -89,3 +89,16 @@ Hosting options
 
 - Render: Add `RENDER_API_KEY` and `RENDER_SERVICE_ID` as GitHub secrets to enable `deploy_render.yml`.
 - Fly: Add `FLY_API_TOKEN`, `FLY_APP_NAME`, and `GHCR_TOKEN` secrets to enable `deploy_fly.yml`.
+
+Render deployment (step-by-step)
+
+1. Create a new Web Service on Render and connect it to this GitHub repository.
+  - When Render asks for the build method, choose "Docker" and point to the repository root (the included `Dockerfile` will be used).
+  - Alternatively, use the provided `render.yaml` manifest to create the service via Render's dashboard or CLI (update `repo` in the file first).
+2. In the Render service dashboard, set environment variables: `LINKEDIN_EMAIL`, `LINKEDIN_PASSWORD`, and `HEADLESS`.
+3. If you want GitHub Actions to push images and optionally trigger Render deploys, add these GitHub secrets: `GHCR_TOKEN`, `RENDER_API_KEY`, and `RENDER_SERVICE_ID`.
+  - Create `RENDER_API_KEY` in Render account settings → API Keys.
+  - `RENDER_SERVICE_ID` is available in the Render service settings or via the Render API after creating the service.
+4. Push to `main` — Render will automatically build and deploy, or run the `deploy_render.yml` workflow to build/push then trigger a Render deploy.
+
+After deployment, Render will provide a public HTTPS URL where you can `POST /scrape` as documented above.
