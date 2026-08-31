@@ -1,6 +1,11 @@
 # LinkedIn Profile API
 
-This project provides an API that accepts a LinkedIn profile URL and returns structured JSON containing profile fields (name, headline, location, about, experience, education, skills, certifications, languages, and images) by using Playwright to load and scrape the profile pages.
+This project provides an API that accepts a LinkedIn profile URL and returns structured JSON containing profile fields (name, headline, location, about, experience, education, skills, certifications, languages, and images).
+
+Two scraping modes are supported:
+
+- Browser-based (Playwright): loads the profile in a real browser and scrapes the DOM.
+- API-based (no browser): hits LinkedIn's internal Voyager API endpoints or falls back to HTML parsing. Use `USE_API=true` and provide session cookies (`LI_AT` and `JSESSIONID`) in the environment.
 
 Features
 - POST /scrape with JSON `{ "url": "https://www.linkedin.com/in/..." }`
@@ -13,7 +18,7 @@ Security
 
 Quick start
 
-1. Copy `.env.example` to `.env` and set `LINKEDIN_EMAIL` and `LINKEDIN_PASSWORD`.
+1. Copy `.env.example` to `.env` and set authentication values. For browser mode, set `LINKEDIN_EMAIL` and `LINKEDIN_PASSWORD`. For API mode, set `USE_API=true` and provide `LI_AT` and `JSESSIONID`.
 2. Install dependencies:
 
 ```bash
@@ -50,14 +55,15 @@ API
 
 Approach
 
-- Use Playwright to log in to LinkedIn using provided credentials and then navigate to the target profile URL.
-- Use DOM scraping (query selectors) to extract common fields. The scraper attempts multiple likely selectors for robustness and returns partial data if some fields are unavailable.
+-- Browser mode: Use Playwright to log in to LinkedIn using provided credentials and then navigate to the target profile URL. Use DOM scraping (query selectors) to extract common fields.
+-- API mode: Use LinkedIn Voyager endpoints where available by sending authenticated HTTP requests with `li_at` and `JSESSIONID` cookies and appropriate headers. Fallback to HTML parsing and JSON-LD extraction when necessary.
 
 Limitations
 
 - LinkedIn's DOM changes frequently — selectors may break and require maintenance.
 - Using this scraper may violate LinkedIn's Terms of Service — run only with an account you control and understand legal/ethical constraints.
 - Anti-bot measures, rate limits, or account restrictions may prevent scraping at scale.
+ - API mode requires valid `LI_AT` and `JSESSIONID` session cookies; without them requests will be redirected to login or blocked.
 
 Repository
 
